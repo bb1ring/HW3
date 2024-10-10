@@ -1,29 +1,36 @@
 ---
 title: "p8105_hw3_SL5454"
-output: html_document
+output: github_document
 date: "2024-10-10"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(p8105.datasets)
+library(tidyverse)
+library(tidyr)
+data("ny_noaa")
 ```
+Dataset description:
+This dataset shows some of the weather data in New York, including the date of collection, maximum and minimum temperature, total daily precipitation, snowfall, and snow depth.
+The structure of the dataset includes rows for each date of collection, with columns for each of the weather measurements. The dataset spans the period from January 1981 through December 2010 and contains approximately 2.6 million records. 
+When attempting to predict trends in these measurements, missing values in precipitation, snowfall, and snow depth may affect the results of the analysis.
 
-## R Markdown
+```{r}
+ny_weather = ny_noaa |>
+  janitor::clean_names() |>
+  separate(date, into = c("year", "month", "day"), sep = "-") |>
+  mutate(tmax = as.numeric(tmax),
+         tmin = as.numeric(tmin),
+         tmin_celsius = (tmin - 32) * 1.8,
+         tmax_celsius = (tmax - 32) * 1.8)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+snowfall = ny_weather |>
+  count(snow) |>
+  arrange(desc(n))
 ```
+The most common observed value is 0, because many days likely have no snowfall.
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
+Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
