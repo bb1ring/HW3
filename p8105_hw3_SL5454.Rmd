@@ -9,6 +9,7 @@ editor_options:
 ```{r setup, include=FALSE}
 library(p8105.datasets)
 library(tidyverse)
+library(ggridges)
 library(tidyr)
 data("ny_noaa")
 ```
@@ -23,14 +24,28 @@ ny_weather = ny_noaa |>
   separate(date, into = c("year", "month", "day"), sep = "-") |>
   mutate(tmax = as.numeric(tmax),
          tmin = as.numeric(tmin),
-         tmin_celsius = (tmin - 32) * 1.8,
-         tmax_celsius = (tmax - 32) * 1.8)
+         tmin_celsius = tmin / 10,
+         tmax_celsius = tmax / 10,
+         prcp_mm = prcp / 10)
 
 snowfall = ny_weather |>
   count(snow) |>
   arrange(desc(n))
 ```
 The most common observed value is 0, because many days likely have no snowfall.
+
+```{r}
+ny_weather |>
+  filter(month == c("01", "07")) |>
+  group_by(year, month) |>
+  summarise(avg_tmax = mean(tmax_celsius, na.rm = TRUE)) |>
+  ungroup() |>
+  ggplot(aes(x = month, y = avg_tmax)) +
+  geom_line() +
+  facet_wrap(~ month) +
+  labs(title = "Average Max Temperature in January and July",
+       x = "Month", y = "Average Max Temperature (F)") 
+```
 
 Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
