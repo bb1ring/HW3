@@ -31,9 +31,12 @@ ny_weather = ny_noaa |>
 snowfall = ny_weather |>
   count(snow) |>
   arrange(desc(n))
+
+head(snowfall,3)
 ```
 The most common observed value is 0, because many days likely have no snowfall.
 
+The two-panel plot showing the average max temperature in January and in July in each station across years.
 ```{r}
 ny_weather |>
   filter(month == c("01", "07")) |>
@@ -49,15 +52,21 @@ ny_weather |>
 In Janurary 2004, there were 2 outliers, showing an unusual high maximum temperature. In July 1988, there were 1 outlier, showing an usual low maximum temperature.
 The average maximum temperature in July didn't change much across the year. On the contrary, the maximum temperature in Janurary went up and down across years.
 
+(i) tmax vs tmin for the full dataset
 ```{r}
-ggplot(ny_weather, aes(x = tmin, y = tmax)) +
+ny_weather |>
+  ggplot(aes(x = tmin, y = tmax)) +
   geom_hex() +
-  labs(title = "Hexbin Plot of Max Temperature vs Min Temperature",
-       x = "Min Temperature (C)", y = "Max Temperature (C)") +
+  labs(x = "Min Temperature (C)", y = "Max Temperature (C)") +
   theme_minimal()
-
+```
+(ii) The distribution of snowfall values greater than 0 and less than 100 separately by year
+```{r}
+ny_weather|>
+  filter(snow > '0', snow < '100') |>
+  ggplot(aes(x = snow)) + 
+  geom_histogram(alpha = 0.3) +
+  facet_wrap(~ year)
 ```
 
-
-Make a two-panel plot showing the average max temperature in January and in July in each station across years. Is there any observable / interpretable structure? Any outliers?
 Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
