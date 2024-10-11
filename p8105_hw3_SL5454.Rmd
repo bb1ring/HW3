@@ -10,6 +10,7 @@ editor_options:
 library(tidyverse)
 library(ggridges)
 library(tidyr)
+library(patchwork)
 ```
 
 
@@ -85,5 +86,14 @@ ny_weather|>
        y = "Snowfall", x = "Years") 
 ```
 
-
 ## Problem 2
+```{r}
+demo = read_csv("/data/nhanes_covar.csv",
+                na = c("NA", "", ".")) |>
+  janitor::clean_names()
+
+accelv = read_csv("/data/nhanes_accelv.csv",
+                  na = c("NA", "", ".")) |>
+  janitor::clean_names()
+```
+
