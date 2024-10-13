@@ -157,8 +157,6 @@ data_clean |>
 ```
 In general, the total value of activity is greater for women than for men at all ages with high school equivalent and more than high school education. In less than high school education group, men have more total activity than women after ago of 40.
 
-
-Accelerometer data allows the inspection activity over the course of the day. Make a three-panel plot that shows the 24-hour activity time courses for each education level and use color to indicate sex. Describe in words any patterns or conclusions you can make based on this graph; including smooth trends may help identify differences.
 ```{r}
 data_clean |>
   mutate(hour = min / 60) |>
@@ -170,7 +168,44 @@ data_clean |>
   facet_wrap(~ education, nrow = 3) +
   labs(title = "24-Hour Activity Time Course by Education and Sex",
        x = "Time of Day (hours)", y = "Mean Activity") 
-
 ```
 Most people's activity levels increase dramatically from 5am to 10am. Across all levels of education, women are typically more active than men in the middle of the day.
+
+## Problem 3
+```{r}
+Jan2020 = read_csv(file = "./data/citibike/Jan 2020 Citi.csv",
+                  na = c("NA", "", ".")) |>
+  janitor::clean_names() |>
+  mutate(year = "2020", month = "Janurary")
+
+July2020 = read_csv(file = "./data/citibike/July 2020 Citi.csv",
+                  na = c("NA", "", ".")) |>
+  janitor::clean_names() |>
+  mutate(year = "2020", month = "July")
+
+Jan2024 = read_csv(file = "./data/citibike/Jan 2024 Citi.csv",
+                  na = c("NA", "", ".")) |>
+  janitor::clean_names() |>
+  mutate(year = "2024", month = "Janurary")
+  
+July2024 = read_csv(file = "./data/citibike/July 2024 Citi.csv",
+                  na = c("NA", "", ".")) |>
+  janitor::clean_names() |>
+  mutate(year = "2024", month = "July")
+
+citibike = bind_rows(Jan2020, July2020, Jan2024, July2024)
+```
+
+Produce a reader-friendly table showing the total number of rides in each combination of year and month separating casual riders and Citi Bike members. Comment on these results.
+```{r}
+citibike |>
+  group_by(year, month, member_casual) |>
+  summarise(total_rides = n()) |>
+  ungroup() |>
+  pivot_wider(
+    names_from = member_casual, 
+    values_from = total_rides) |>
+  knitr::kable()
+```
+Compared to 2020, the total number of people using the Citi bike in 2024 has doubled. In both 2020 and 2024, the number of people using Citi bikes in July is more than in January, and the number of member is larger than the number of casual. 
 
