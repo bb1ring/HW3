@@ -176,7 +176,7 @@ Most people's activity levels increase dramatically from 5am to 10am. Across all
 Jan2020 = read_csv(file = "./data/citibike/Jan 2020 Citi.csv",
                   na = c("NA", "", ".")) |>
   janitor::clean_names() |>
-  mutate(year = "2020", month = "Janurary")
+  mutate(year = "2020", month = "January")
 
 July2020 = read_csv(file = "./data/citibike/July 2020 Citi.csv",
                   na = c("NA", "", ".")) |>
@@ -186,16 +186,20 @@ July2020 = read_csv(file = "./data/citibike/July 2020 Citi.csv",
 Jan2024 = read_csv(file = "./data/citibike/Jan 2024 Citi.csv",
                   na = c("NA", "", ".")) |>
   janitor::clean_names() |>
-  mutate(year = "2024", month = "Janurary")
+  mutate(year = "2024", month = "January")
   
 July2024 = read_csv(file = "./data/citibike/July 2024 Citi.csv",
                   na = c("NA", "", ".")) |>
   janitor::clean_names() |>
   mutate(year = "2024", month = "July")
 
-citibike = bind_rows(Jan2020, July2020, Jan2024, July2024) |>
-  mutate(weekdays = as.factor(weekdays),
-         member_casual = as.factor(member_casual))
+citibike <- bind_rows(Jan2020, July2020, Jan2024, July2024) |>
+  mutate(
+    weekdays = factor(weekdays, 
+                      levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
+    member_casual = as.factor(member_casual),
+    rideable_type = as.factor(rideable_type)
+  )
 ```
 
 Produce a reader-friendly table showing the total number of rides in each combination of year and month separating casual riders and Citi Bike members. Comment on these results.
@@ -220,7 +224,7 @@ citibike |>
   knitr::kable()
 ```
 
-Make a plot to investigate the effects of day of the week, month, and year on median ride duration. This plot can include one or more panels, but should facilitate comparison across all variables of interest. Comment on your observations from this plot.
+Plot for median rider duration
 ```{r}
 citibike |>
   group_by(year, month, weekdays) |>
@@ -232,10 +236,21 @@ citibike |>
   labs(title = "Median Ride Duration by Weekdays, Month, and Year",
        x = "Weekdays", y = "Median Ride Duration") +
   theme_minimal() 
-
 ```
+The median rider duration is much longer in 2020. In both 2020 and 2024, median ride duration is longer on weekends in July. In Janurary, median ride duration is still longer in 2020, but not in 2024.
 
+The impact of month, membership status, and bike type on the distribution of ride duration.
 ```{r}
-
+citibike |>
+  filter(year == 2024) |>
+  group_by(month, member_casual, rideable_type) |>
+  summarise(median_duration = median(duration)) |>
+  ungroup() |>
+  ggplot(aes(x = month, y = median_duration, fill = member_casual)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ rideable_type) +
+  labs(title = "Impact of Month, Membership, and Bike Type on Ride Duration (2024)",
+       x = "Month", y = "Median Ride Duration (mins)", fill = "Membership Status") +
+  theme_minimal()
 ```
-
+In general, those without memberships rode longer than those with memberships. People with memberships spent a similar median amount of time riding bicycles and riding e-bikes in January and July. Those without memberships rode longer in July, preferring to ride classic bikes.
