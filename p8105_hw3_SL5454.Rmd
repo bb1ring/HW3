@@ -193,7 +193,9 @@ July2024 = read_csv(file = "./data/citibike/July 2024 Citi.csv",
   janitor::clean_names() |>
   mutate(year = "2024", month = "July")
 
-citibike = bind_rows(Jan2020, July2020, Jan2024, July2024)
+citibike = bind_rows(Jan2020, July2020, Jan2024, July2024) |>
+  mutate(weekdays = as.factor(weekdays),
+         member_casual = as.factor(member_casual))
 ```
 
 Produce a reader-friendly table showing the total number of rides in each combination of year and month separating casual riders and Citi Bike members. Comment on these results.
@@ -207,5 +209,33 @@ citibike |>
     values_from = total_rides) |>
   knitr::kable()
 ```
-Compared to 2020, the total number of people using the Citi bike in 2024 has doubled. In both 2020 and 2024, the number of people using Citi bikes in July is more than in January, and the number of member is larger than the number of casual. 
+Compared to 2020, the total number of people using the Citi bike in 2024 has doubled. In both 2020 and 2024, the number of people using Citi bikes in July is more than in January, and the number of member is larger than the number of casual.
+
+The 5 most popular starting stations for July 2024
+```{r}
+citibike |>
+  filter(year == "2024", month == "July") |>
+  count(start_station_name, sort = TRUE) |>
+  top_n(5) |>
+  knitr::kable()
+```
+
+Make a plot to investigate the effects of day of the week, month, and year on median ride duration. This plot can include one or more panels, but should facilitate comparison across all variables of interest. Comment on your observations from this plot.
+```{r}
+citibike |>
+  group_by(year, month, weekdays) |>
+  summarise(median_duration = median(duration)) |>
+  ungroup() |>
+  ggplot(aes(x = weekdays, y = median_duration, color = year)) +
+  geom_line(aes(group = year)) +
+  facet_wrap(~ month) +
+  labs(title = "Median Ride Duration by Weekdays, Month, and Year",
+       x = "Weekdays", y = "Median Ride Duration") +
+  theme_minimal() 
+
+```
+
+```{r}
+
+```
 
